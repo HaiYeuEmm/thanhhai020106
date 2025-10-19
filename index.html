@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💌</title>
+<style>
+  body {
+    margin: 0;
+    height: 100vh;
+    background: linear-gradient(180deg, #ffe6f2, #ffcce0);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    font-family: 'Poppins', sans-serif;
+    color: #c2185b;
+  }
+
+  h1 {
+    font-size: 3em;
+    text-align: center;
+    cursor: default;
+    animation: fadeIn 2s ease forwards;
+    user-select: none;
+    text-shadow: 0 0 15px rgba(255,255,255,0.9);
+  }
+
+  @keyframes fadeIn {
+    from {opacity: 0; transform: scale(0.8);}
+    to {opacity: 1; transform: scale(1);}
+  }
+
+  .fall {
+    position: fixed;
+    top: -50px;
+    animation: fall linear forwards;
+    z-index: 5;
+    opacity: 0.9;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  @keyframes fall {
+    to {
+      transform: translateY(110vh) rotate(720deg);
+      opacity: 1;
+    }
+  }
+
+  .popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    background: rgba(255, 255, 255, 0.95);
+    padding: 25px;
+    border-radius: 25px;
+    box-shadow: 0 0 30px rgba(255,182,193,0.7);
+    text-align: center;
+    transition: 0.5s ease;
+    z-index: 20;
+    width: 80%;
+    max-width: 400px;
+    backdrop-filter: blur(8px);
+  }
+
+  .popup.active {
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  .popup img {
+    max-width: 100%;
+    border-radius: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  }
+
+  .popup h2 {
+    color: #c2185b;
+    font-size: 1.2em;
+  }
+
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    opacity: 0;
+    transition: 0.5s;
+    z-index: 10;
+    display: none;
+  }
+
+  .overlay.active {
+    display: block;
+    opacity: 1;
+  }
+
+  .hearts {
+    position: fixed;
+    font-size: 1.5rem;
+    animation: heartFloat 4s ease-in-out infinite;
+    z-index: 3;
+  }
+
+  @keyframes heartFloat {
+    0% {transform: translateY(0) scale(1); opacity: 1;}
+    100% {transform: translateY(-100vh) scale(1.5); opacity: 0;}
+  }
+
+  .sparkle {
+    position: fixed;
+    width: 4px;
+    height: 4px;
+    background: white;
+    border-radius: 50%;
+    opacity: 0.8;
+    animation: twinkle 3s infinite ease-in-out;
+    z-index: 1;
+  }
+
+  @keyframes twinkle {
+    0%,100% {opacity: 0.1;}
+    50% {opacity: 1;}
+  }
+
+  .close-btn {
+    background: #f8bbd0;
+    border: none;
+    border-radius: 50%;
+    padding: 8px 12px;
+    color: white;
+    font-size: 18px;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(255,192,203,0.6);
+  }
+
+  .close-btn:hover {
+    background: #f06292;
+  }
+
+  /* --- Intro mở đầu --- */
+  #intro {
+    position: fixed;
+    inset: 0;
+    background: #ffb6c1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    z-index: 100;
+    animation: introFade 4s ease forwards;
+  }
+
+  #intro h2 {
+    color: white;
+    font-size: 2em;
+    opacity: 0;
+    animation: introText 3s ease forwards;
+  }
+
+  @keyframes introText {
+    0% {opacity: 0;}
+    50% {opacity: 1;}
+    100% {opacity: 0;}
+  }
+
+  @keyframes introFade {
+    0% {opacity: 1;}
+    80% {opacity: 1;}
+    100% {opacity: 0; visibility: hidden;}
+  }
+</style>
+</head>
+<body>
+
+<!-- Intro -->
+<div id="intro">
+  <h2>💌 Gửi em... 💗</h2>
+</div>
+
+<h1>Chúc ebe 20th10 dui dẻ nhó💌</h1>
+<div class="overlay" id="overlay"></div>
+
+<div class="popup" id="popup">
+  <button class="close-btn" id="closePopup">✖</button>
+  <img id="popupImg" src="" alt="Ảnh">
+  <h2 id="popupText"></h2>
+</div>
+
+<audio id="bgm" src="nhạc.mp3" loop></audio>
+
+<script>
+  const icons = ["🌸","💌","🌷","💖","💐"];
+  const messages = [
+    {img: "img1.jpg", text: "🌸 Chúc ebe ngày càng xinh đẹp và rạng rỡ như hoa này!"},
+    {img: "img2.jpg", text: "💌 Chúc ebe cóa một ngày 20th10 thậc là hạnh phúc"},
+    {img: "img3.jpg", text: "🌷 Em là đóa hoa đẹp nhất trong lòng anh!"},
+    {img: "img4.jpg", text: "💖 Mong cuộc đời nhẹ nhàng với ebe hơn"},
+    {img: "img5.jpg", text: "💐 Chúc ebe hạnh phúc, dịu dàng"}
+  ];
+
+  const overlay = document.getElementById("overlay");
+  const popup = document.getElementById("popup");
+  const popupImg = document.getElementById("popupImg");
+  const popupText = document.getElementById("popupText");
+  const bgm = document.getElementById("bgm");
+  const closeBtn = document.getElementById("closePopup");
+  let musicPlayed = false;
+
+  // hoa rơi
+  setInterval(() => {
+    const fall = document.createElement("div");
+    const i = Math.floor(Math.random() * icons.length);
+    fall.classList.add("fall");
+    fall.textContent = icons[i];
+    fall.dataset.index = i;
+    fall.style.left = Math.random() * 100 + "vw";
+    fall.style.fontSize = Math.random() * 24 + 18 + "px";
+    fall.style.animationDuration = 5 + Math.random() * 5 + "s";
+    document.body.appendChild(fall);
+
+    fall.addEventListener("click", () => {
+      popupImg.src = messages[i].img;
+      popupText.textContent = messages[i].text;
+      popup.classList.add("active");
+      overlay.classList.add("active");
+      if (!musicPlayed) {
+        bgm.play().catch(()=>{});
+        musicPlayed = true;
+      }
+    });
+
+    setTimeout(() => fall.remove(), 10000);
+  }, 500);
+
+  // trái tim bay
+  setInterval(() => {
+    const heart = document.createElement("div");
+    heart.classList.add("hearts");
+    heart.textContent = "💗";
+    heart.style.left = Math.random() * 100 + "vw";
+    heart.style.bottom = "0px";
+    heart.style.animationDuration = 3 + Math.random() * 2 + "s";
+    document.body.appendChild(heart);
+    setTimeout(() => heart.remove(), 4000);
+  }, 600);
+
+  // ánh sáng lung linh
+  for (let i = 0; i < 50; i++) {
+    const s = document.createElement("div");
+    s.classList.add("sparkle");
+    s.style.left = Math.random() * 100 + "vw";
+    s.style.top = Math.random() * 100 + "vh";
+    s.style.animationDelay = Math.random() * 3 + "s";
+    document.body.appendChild(s);
+  }
+
+  overlay.addEventListener("click", closePopup);
+  closeBtn.addEventListener("click", closePopup);
+  function closePopup() {
+    popup.classList.remove("active");
+    overlay.classList.remove("active");
+  }
+</script>
+
+</body>
+</html>
